@@ -17,10 +17,11 @@ class TextLoader extends Component<Props, State> {
 
   // Rendering
   public render(): ReactNode {
-    const {text, ...rest} = this.props;
+    const {text, className, ...rest} = this.props;
+    const cls = `text-loader ${className}`.trim();
 
     return <span
-      className="text-loader"
+      className={cls}
       children={[
         <span key="text" className="text">{text}</span>,
         <span key="dot-1" className="dot dot-1">.</span>,

@@ -9,7 +9,7 @@ import TextSuccess from "./components/TextLoader/TextSuccess";
 interface Props {}
 
 interface State {
-  serverStatus: "connecting" | "connected" | "error";
+  serverStatus: "connecting" | "reconnecting" | "connected" | "error";
 }
 
 
@@ -19,14 +19,21 @@ interface State {
  */
 class App extends Component<Props, State> {
 
+  // Members
+  private timeouts: any[] = [];
+
   // State
   public state: State = {
     serverStatus: "connecting",
   };
 
-  // Lifecycle
-  public async componentDidMount() {
+  // Helpers
+  public tryConnect = async () => {
     try {
+      if (this.state.serverStatus === "error") {
+        this.setState(() => ({serverStatus: "reconnecting"}));
+      }
+
       const rawFetch = await fetch(config.server.domain);
       const ping = await rawFetch.json();
       console.log(ping);
@@ -35,7 +42,22 @@ class App extends Component<Props, State> {
     }
     catch (e) {
       this.setState(() => ({serverStatus: "error"}));
+      // const id = setTimeout(this.tryConnect, 10000);
+      // this.timeouts.push(id);
     }
+  }
+
+  // Lifecycle
+  public async componentDidMount() {
+    await this.tryConnect();
+  }
+
+  public componentWillUnmount() {
+    this.timeouts.forEach((timeout: any) => {
+      clearTimeout(timeout);
+    });
+
+    this.timeouts = [];
   }
 
   // Rendering
@@ -44,6 +66,7 @@ class App extends Component<Props, State> {
     const connecting = this.state.serverStatus === "connecting";
     const error = this.state.serverStatus === "error";
     const connected = this.state.serverStatus === "connected";
+    const reconnecting = this.state.serverStatus === "reconnecting";
 
     const loaderStyles: CSSProperties = {
       position: "fixed",
@@ -57,9 +80,27 @@ class App extends Component<Props, State> {
       <br/>
 
       <h1>Connect 4 - Multiplayer</h1>
-      {connecting && <TextLoader style={loaderStyles} text="Connecting to server"/>}
-      {error && <TextError style={loaderStyles} text="Connection failed"/>}
-      {connected && <TextSuccess style={loaderStyles} text="Connected" autoHide={true}/>}
+      {connecting && <TextLoader
+          style={loaderStyles}
+          text="Connecting to server"
+      />}
+
+      {error && <TextError
+          style={loaderStyles}
+          text="Connection failed"
+      />}
+
+      {reconnecting && <TextLoader
+          style={loaderStyles}
+          className="text-error"
+          text="Trying to reconnect"
+      />}
+
+      {connected && <TextSuccess
+          style={loaderStyles}
+          text="Connected"
+          autoHide={true}
+      />}
     </>;
   }
 }
