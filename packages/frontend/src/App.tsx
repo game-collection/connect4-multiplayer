@@ -1,9 +1,10 @@
 import React, {Component, CSSProperties, ReactNode} from "react";
 import {config} from "./config/config";
 import TextLoader from "./components/TextLoader/TextLoader";
-import "./css/app.css";
 import TextError from "./components/TextLoader/TextError";
 import TextSuccess from "./components/TextLoader/TextSuccess";
+import {gameSocket} from "./socket/GameSocket";
+import "./css/app.css";
 
 
 interface Props {}
@@ -39,17 +40,27 @@ class App extends Component<Props, State> {
       console.log(ping);
 
       this.setState(() => ({serverStatus: "connected"}));
-    }
-    catch (e) {
+    } catch (e) {
       this.setState(() => ({serverStatus: "error"}));
       // const id = setTimeout(this.tryConnect, 10000);
       // this.timeouts.push(id);
     }
   }
 
+  public setupSocket = () => {
+    gameSocket.on("connect_error", (error: Error) => {
+      console.error(error.message);
+    });
+
+    gameSocket.on("connect", () => {
+      console.log("Socket: Connected");
+    });
+  }
+
   // Lifecycle
   public async componentDidMount() {
     await this.tryConnect();
+    this.setupSocket();
   }
 
   public componentWillUnmount() {
@@ -61,7 +72,7 @@ class App extends Component<Props, State> {
   }
 
   // Rendering
-  public render(): ReactNode {
+  private renderServerStatus() {
 
     const connecting = this.state.serverStatus === "connecting";
     const error = this.state.serverStatus === "error";
@@ -76,10 +87,6 @@ class App extends Component<Props, State> {
     };
 
     return <>
-      <br/>
-      <br/>
-
-      <h1>Connect 4 - Multiplayer</h1>
       {connecting && <TextLoader
           style={loaderStyles}
           text="Connecting to server"
@@ -99,8 +106,21 @@ class App extends Component<Props, State> {
       {connected && <TextSuccess
           style={loaderStyles}
           text="Connected"
-          autoHide={true}
+          autoHide={false}
       />}
+    </>
+  }
+
+  public render(): ReactNode {
+
+    return <>
+      {this.renderServerStatus()}
+
+      <br/>
+      <br/>
+
+      <h1>Connect 4 - Multiplayer</h1>
+
     </>;
   }
 }

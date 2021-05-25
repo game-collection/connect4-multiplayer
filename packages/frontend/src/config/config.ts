@@ -7,5 +7,6 @@ export const config = {
   },
   server: {
     domain: production ? "https://connect4-server.herokuapp.com" : "http://localhost:5000",
+    socketDomain: production ? "wss://connect4-server.herokuapp.com" : "ws://localhost:5000",
   },
 };

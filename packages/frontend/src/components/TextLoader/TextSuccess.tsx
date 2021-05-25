@@ -4,7 +4,7 @@ import "./TextLoader.css";
 
 interface Props extends HTMLAttributes<HTMLSpanElement> {
   text: string;
-  autoHide: true;
+  autoHide: boolean;
 }
 
 interface State {
