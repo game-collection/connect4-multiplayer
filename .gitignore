@@ -1,0 +1,10 @@
+# development
+.idea
+.vscode
+
+# local pacakges
+node_modules
+
+# build folders
+build
+dist

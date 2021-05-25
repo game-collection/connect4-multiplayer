@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "name": "connect4-multiplayer",
+  "workspaces": ["packages/*"],
+  "author": "ingoandelhofs <ingoandelhofs@gmail.com>",
+  "scripts": {
+    "start:frontend": "yarn workspace frontend start:dev",
+    "start:backend": "yarn workspace backend start:dev"
+  }
+}
