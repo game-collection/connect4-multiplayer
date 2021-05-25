@@ -5,6 +5,8 @@
   "author": "ingoandelhofs <ingoandelhofs@gmail.com>",
   "scripts": {
     "start:frontend": "yarn workspace frontend start:dev",
-    "start:backend": "yarn workspace backend start:dev"
+    "start:backend": "yarn workspace backend start:dev",
+    "heroku:logs:frontend": "heroku logs --tail --app connect4-frontend",
+    "heroku:logs:backend": "heroku logs --tail --app connect4-server"
   }
 }

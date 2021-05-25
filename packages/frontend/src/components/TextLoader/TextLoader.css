@@ -1,0 +1,60 @@
+
+
+.text-loader {
+    background-color: #e2e3e5;
+    border-radius: 4px;
+    border: 1px solid #d6d8db;
+    padding: 6px 12px;
+
+    color: #383d41;
+    font-weight: 600;
+
+    transition: 1s ease opacity;
+}
+
+.text-loader.hidden {
+    opacity: 0;
+}
+
+.text-loader.text-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.text-loader.text-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.text-loader .dot {
+    /*display: none;*/
+    animation-timing-function: ease;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    transition: .1s ease opacity;
+}
+
+.text-loader .dot-1 { animation-name: dot-1; }
+.text-loader .dot-2 { animation-name: dot-2; }
+.text-loader .dot-3 { animation-name: dot-3; }
+
+
+@keyframes dot-1 {
+    0%  {opacity: 1;}
+    20% {opacity: 0.2;}
+    25% {opacity: 1;}
+}
+
+@keyframes dot-2 {
+    0%  {opacity: 1;}
+    25% {opacity: .2;}
+    30% {opacity: 1;}
+}
+
+@keyframes dot-3 {
+    0%  {opacity: 1;}
+    30% {opacity: .2;}
+    35% {opacity: 1;}
+}
