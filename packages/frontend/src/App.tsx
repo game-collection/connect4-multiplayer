@@ -3,7 +3,8 @@ import {config} from "./config/config";
 import TextLoader from "./components/TextLoader/TextLoader";
 import TextError from "./components/TextLoader/TextError";
 import TextSuccess from "./components/TextLoader/TextSuccess";
-import {gameSocket} from "./socket/GameSocket";
+import GameSocket from "./socket/GameSocket";
+import { v4 as uuid } from 'uuid';
 import "./css/app.css";
 
 
@@ -11,6 +12,7 @@ interface Props {}
 
 interface State {
   serverStatus: "connecting" | "reconnecting" | "connected" | "error";
+  rooms: any[];
 }
 
 
@@ -26,6 +28,7 @@ class App extends Component<Props, State> {
   // State
   public state: State = {
     serverStatus: "connecting",
+    rooms: [],
   };
 
   // Helpers
@@ -48,13 +51,31 @@ class App extends Component<Props, State> {
   }
 
   public setupSocket = () => {
-    gameSocket.on("connect_error", (error: Error) => {
+    GameSocket.onConnectError((error: Error) => {
       console.error(error.message);
     });
 
-    gameSocket.on("connect", () => {
+    GameSocket.onConnect(() => {
       console.log("Socket: Connected");
     });
+
+    GameSocket.socket.on("gameCreated", (payload: {id: string, name: string}) => {
+      this.setState((s: State) => ({rooms: [payload, ...s.rooms]}));
+    });
+
+    GameSocket.socket.on("removeRoom", (payload) => {
+      this.setState((s: State) => {
+        const updatedRooms = s.rooms.filter((room: any) => room.id !== payload.id);
+        return {rooms: updatedRooms};
+      });
+
+    });
+  }
+
+  // Listeners
+  private onCreateRoom = () => {
+    const id: string = uuid();
+    GameSocket.socket.emit("createGame", {id: id, name: ""});
   }
 
   // Lifecycle
@@ -69,6 +90,7 @@ class App extends Component<Props, State> {
     });
 
     this.timeouts = [];
+    GameSocket.socket.offAny();
   }
 
   // Rendering
@@ -111,17 +133,38 @@ class App extends Component<Props, State> {
     </>
   }
 
-  public render(): ReactNode {
+  private renderRoom = (room: any) => {
+    const onJoinRoom = () => {
+      GameSocket.socket.emit("joinGame", {id: room.id});
+    };
 
-    return <>
+    return <div key={room.id} className="room">
+      <span>{room.id}</span>
+      <button onClick={onJoinRoom}>Join</button>
+    </div>
+  }
+
+  public render(): ReactNode {
+    const rooms = this.state.rooms;
+
+    return <div className="app">
       {this.renderServerStatus()}
 
-      <br/>
-      <br/>
+      <div className="wrapper">
+        <h1>Connect 4</h1>
 
-      <h1>Connect 4 - Multiplayer</h1>
+        <div className="form-create-room">
+          {/*<input type="text" placeholder="Room Name"/>*/}
+          <button onClick={this.onCreateRoom}>Create Room</button>
+        </div>
 
-    </>;
+        <div className="rooms">
+          {rooms.map(this.renderRoom)}
+        </div>
+
+      </div>
+
+    </div>;
   }
 }
 
